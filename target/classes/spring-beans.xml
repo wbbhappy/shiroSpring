@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-2.0.xsd" default-autowire="byName">
+	
+	<!-- 数据库连接池 -->
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
+		<property name="url" value="jdbc:mysql://localhost:3306/shiro"></property>
+		<property name="username" value="root"></property>
+		<property name="password" value="root"></property>
+	</bean>
+	
+	<!-- Base DAO -->
+	<bean id="baseDao" abstract="true">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+	
+	<!-- DAO -->
+	<bean id="permissionDao" class="dao.PermissionDaoImpl"/>
+	<bean id="roleDao" class="dao.RoleDaoImpl"/>
+	<bean id="userDao" class="dao.UserDaoImpl"/>
+	
+	<!-- Service -->
+	<bean id="permissionService" class="service.PermissionServiceImpl">
+		<property name="permissionDao" ref="permissionDao"/>
+	</bean>
+	<bean id="roleService" class="service.RoleServiceImpl">
+		<property name="roleDao" ref="roleDao"/>
+	</bean>
+	<bean id="userService" class="service.UserServiceImpl">
+		<property name="userDao" ref="userDao"/>
+	</bean>
+	<bean id="passwordHelper" class="service.PasswordHelper">
+		<property name="algorithmName" value="md5"/>
+		<property name="hashIterations" value="2"/>
+	</bean>
+</beans>

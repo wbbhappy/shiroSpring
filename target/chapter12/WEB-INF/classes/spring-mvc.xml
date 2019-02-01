@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+    
+    <context:component-scan base-package="web">
+    	<!-- 这两个注解其实可以忽略掉，意思是只扫描并实例化指定包下的Controller或ControllerAdvice注解的类 -->
+    	<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    	<context:include-filter type="annotation" expression="org.springframework.web.bind.annotation.ControllerAdvice"/>
+    </context:component-scan>
+    
+    <!-- Shiro Spring AOP权限注解的支持 -->
+    <!-- 表示代理类 -->
+    <aop:config proxy-target-class="true"></aop:config>
+    <bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+    	<property name="securityManager" ref="securityManager"></property>
+    </bean>
+    
+    <!-- 
+    	平时访问页面都需要通过Controller，但有时候只想直接地跳转到目标页面，这时候就可以使用mvc:view-controller标签
+    	path="/hello"：就是你访问的路径（相当于RequestMapping("/hello")） 
+		view-name="hello"：是你所要的视图（如hello.jsp,相当于return "hello"）
+    -->
+    <mvc:view-controller path="/" view-name="index"/>
+    <!-- 上面一行配置成功后，可能访问其他的页面会失败，不要慌，加下面这行-->
+    <mvc:annotation-driven/>
+    
+    <!-- 默认的视图解析器，在上边的解析错误时使用（默认使用html） -->
+    <bean id="defaultViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+    	<property name="viewClass" value="org.springframework.web.servlet.view.JstlView"></property>
+    	<property name="contentType" value="text/html"></property>
+    	<property name="prefix" value="/"></property>
+    	<property name="suffix" value=".jsp"></property>
+    </bean>
+    
+    <!-- 控制 器异常处理 -->
+    <bean id="exceptionHandlerExceptionResolver" class="org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver"></bean>
+    <bean class="web.exception.DefaultExceptionHandler"></bean>
+</beans>
